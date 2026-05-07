@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ultra-slim-monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: kube-prometheus-stack
+    targetRevision: 61.x.x
+    helm:
+      values: |
+        # פתרון הקונפליקטים: ביטול Webhooks ו-TLS
+        prometheusOperator:
+          admissionWebhooks: { enabled: false }
+          patch: { enabled: false }
+          tls: { enabled: false }
+        
+        # חיסכון במשאבים (הגנה על ה-Vmmem וה-CPU)
+        nodeExporter: { enabled: false }
+        kubeStateMetrics: { enabled: false }
+        alertmanager: { enabled: false }
+        
+        prometheus:
+          prometheusSpec:
+            scrapeInterval: "30s"
+            resources:
+              limits: { cpu: "200m", memory: "1Gi" }
+            # הגדרה שמאפשרת לזהות את QuakeWatch אוטומטית לפי Annotations
+            additionalScrapeConfigs:
+              - job_name: 'kubernetes-service-endpoints'
+                kubernetes_sd_configs:
+                  - role: endpoints
+                relabel_configs:
+                  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+                    action: keep
+                    regex: true
+                  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+                    action: replace
+                    target_label: __metrics_path__
+                    regex: (.+)
+                  - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+                    action: replace
+                    target_label: __address__
+                    regex: ([^:]+)(?::\d+)?;(\d+)
+                    replacement: $1:$2
+
+        grafana:
+          resources:
+            limits: { cpu: "100m", memory: "512Mi" }
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Validate=false

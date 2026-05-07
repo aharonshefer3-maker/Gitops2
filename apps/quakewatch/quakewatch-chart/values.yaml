@@ -1,0 +1,125 @@
+# Default values for quakewatch-chart.
+command:
+  - "python"
+  - "/app.py"
+
+replicaCount: 1
+
+image:
+  repository: aharonshefer03/quakewatch
+  tag: "v0.28"
+  pullPolicy: Always
+
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# זה שם את המטריקות על הפודים (טוב שיהיה)
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "5000"
+  prometheus.io/path: "/metrics"
+
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+
+# --- התיקון הגדול נמצא כאן ---
+service:
+  type: NodePort
+  port: 5000
+  targetPort: 5000
+  nodePort: 30085
+
+  # הוספנו את זה כדי שה-Service יקבל את ה"שלט" לפרומתאוס
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "5000"
+    prometheus.io/path: "/metrics"
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - chart-example.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /headers
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5000
+  initialDelaySeconds: 45
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5000
+  initialDelaySeconds: 45
+  periodSeconds: 10
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+volumes: []
+volumeMounts: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# --- Dependency Configuration ---
+# משביתים את כל הרכיבים של פרומתאוס הפנימי
+prometheus:
+  enabled: false
+  server:
+    enabled: false
+  alertmanager:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  pushgateway:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+
+# משביתים את רדיס מטריקס אם קיים
+redis:
+  metrics:
+    enabled: false

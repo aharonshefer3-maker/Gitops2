@@ -1,0 +1,5 @@
+image:
+  registry: docker.io
+  repository: bitnami/redis
+  # כאן זה תקין לרשום latest כי זה ה-Tag של Docker
+  tag: latest
