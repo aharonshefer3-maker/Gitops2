@@ -1,0 +1,10 @@
+grafana:
+  service:
+    type: NodePort
+    nodePort: 30001
+
+prometheus:
+  server:
+    service:
+      type: NodePort
+      nodePort: 30002
