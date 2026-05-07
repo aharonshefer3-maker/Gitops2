@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/ronaelshef3/gitops1'
+    repoURL: 'https://github.com/aharonshefer3-maker/gitops2'
     targetRevision: master
     path: app-manifests  # התיקייה שבה יושב ה-Helm Chart שלך
     helm:
