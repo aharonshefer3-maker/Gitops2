@@ -1,4 +1,4 @@
-# IAM Role for K3s Instance (S3 and SSM Access)
+# IAM Role Definition for K3s Instance
 resource "aws_iam_role" "k3s_role" {
   name = "k3s-access-role-${var.env_name}"
 
@@ -12,25 +12,25 @@ resource "aws_iam_role" "k3s_role" {
   })
 }
 
-# Attach S3 Full Access Policy to IAM Role
+# Attach S3 Full Access Policy
 resource "aws_iam_role_policy_attachment" "s3_access" {
   role       = aws_iam_role.k3s_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
-# Attach SSM Core Managed Policy for Session Manager Access
+# Attach SSM Managed Policy for AWS Systems Manager Session Access
 resource "aws_iam_role_policy_attachment" "ssm_managed" {
   role       = aws_iam_role.k3s_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# EC2 Instance Profile linking to IAM Role
+# Instance Profile Linking IAM Role to EC2
 resource "aws_iam_instance_profile" "k3s_profile" {
   name = "k3s-instance-profile-${var.env_name}"
   role = aws_iam_role.k3s_role.name
 }
 
-# EC2 Instance Resource Definition
+# EC2 Compute Instance Resource
 resource "aws_instance" "k3s_node" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
@@ -38,7 +38,7 @@ resource "aws_instance" "k3s_node" {
   vpc_security_group_ids = [var.sg_id]
   key_name               = var.key_name
 
-  # Attach IAM instance profile for S3 & SSM
+  # Attach IAM instance profile
   iam_instance_profile   = aws_iam_instance_profile.k3s_profile.name
 
   root_block_device {
@@ -50,7 +50,7 @@ resource "aws_instance" "k3s_node" {
     #!/bin/bash
     set -e
 
-    # Update system packages and install base utilities
+    # Update dependencies
     apt-get update -y
     apt-get install -y unzip curl wget
 
@@ -58,14 +58,14 @@ resource "aws_instance" "k3s_node" {
     curl -sfL https://get.k3s.io | sh -s -
     systemctl enable --now k3s
 
-    # --- Install & Configure Promtail ---
+    # --- Install & Configure Promtail Agent ---
     PROM_VERSION="2.9.4"
-    wget -q "https://github.com/grafana/loki/releases/download/v\${PROM_VERSION}/promtail-linux-amd64.zip"
+    wget -q "https://github.com/grafana/loki/releases/download/v$${PROM_VERSION}/promtail-linux-amd64.zip"
     unzip -o promtail-linux-amd64.zip
     mv promtail-linux-amd64 /usr/local/bin/promtail
     chmod +x /usr/local/bin/promtail
 
-    # Generate Promtail Configuration
+    # Create Promtail configuration directory and file
     mkdir -p /etc/promtail
     cat <<EOT > /etc/promtail/config.yaml
 server:
@@ -101,7 +101,7 @@ Restart=always
 WantedBy=multi-user.target
 EOT
 
-    # Load and start Promtail service
+    # Enable and start Promtail service
     systemctl daemon-reload
     systemctl enable --now promtail
   EOF
@@ -111,8 +111,8 @@ EOT
   }
 }
 
-# Output EC2 Public IP
+# Output Node Public IP
 output "public_ip" {
   value       = aws_instance.k3s_node.public_ip
-  description = "Public IP address of the K3s server"
+  description = "Public IP of the provisioned K3s node"
 }
