@@ -46,65 +46,12 @@ resource "aws_instance" "k3s_node" {
     volume_type = "gp3"
   }
 
-  user_data = <<-EOF
-    #!/bin/bash
-    set -e
-
-    # Update dependencies
-    apt-get update -y
-    apt-get install -y unzip curl wget
-
-    # --- Install K3s Service ---
-    curl -sfL https://get.k3s.io | sh -s -
-    systemctl enable --now k3s
-
-    # --- Install & Configure Promtail Agent ---
-    PROM_VERSION="2.9.4"
-    wget -q "https://github.com/grafana/loki/releases/download/v$${PROM_VERSION}/promtail-linux-amd64.zip"
-    unzip -o promtail-linux-amd64.zip
-    mv promtail-linux-amd64 /usr/local/bin/promtail
-    chmod +x /usr/local/bin/promtail
-
-    # Create Promtail configuration directory and file
-    mkdir -p /etc/promtail
-    cat <<EOT > /etc/promtail/config.yaml
-server:
-  http_listen_port: 9080
-clients:
-  - url: ${var.loki_url}
-    basic_auth:
-      username: "${var.loki_user}"
-      password: "${var.grafana_token}"
-scrape_configs:
-- job_name: system
-  static_configs:
-  - targets: [localhost]
-    labels:
-      job: varlogs
-      env: ${var.env_name}
-      __path__: /var/log/*.log
-EOT
-
-    # Create Promtail systemd unit
-    cat <<EOT > /etc/systemd/system/promtail.service
-[Unit]
-Description=Promtail Log Collector Service
-After=network.target
-
-[Service]
-Type=simple
-User=root
-ExecStart=/usr/local/bin/promtail -config.file=/etc/promtail/config.yaml
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOT
-
-    # Enable and start Promtail service
-    systemctl daemon-reload
-    systemctl enable --now promtail
-  EOF
+  user_data = templatefile("${path.module}/scripts/user_data.sh", {
+    env_name      = var.env_name
+    loki_url      = var.loki_url
+    loki_user     = var.loki_user
+    grafana_token = var.grafana_token
+  })
 
   tags = {
     Name = "k3s-${var.env_name}"
