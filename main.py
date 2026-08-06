@@ -1,4 +1,4 @@
-# This is a sample Python script.
+sudo /usr/local/bin/k3s kubectl get pods -n argocd# This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
