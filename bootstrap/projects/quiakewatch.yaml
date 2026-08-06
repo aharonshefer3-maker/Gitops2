@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/aharonshefer3-maker/gitops2'
     targetRevision: master
-    path: app-manifests  # התיקייה שבה יושב ה-Helm Chart שלך
+    path: app-manifests/quakewatch-chart  # התיקייה שבה יושב ה-Helm Chart שלך
     helm:
       valueFiles:
         - values.yaml # שימוש בערכים ששלחת לי קודם
