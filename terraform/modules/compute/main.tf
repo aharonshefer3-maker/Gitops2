@@ -51,6 +51,7 @@ resource "aws_instance" "k3s_node" {
     loki_url      = var.loki_url
     loki_user     = var.loki_user
     grafana_token = var.grafana_token
+    argocd_node_port=var.argocd_node_port
   })
 
   tags = {

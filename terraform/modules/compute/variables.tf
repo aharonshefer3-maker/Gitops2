@@ -12,3 +12,8 @@ variable "s3_bucket_name" {
   type        = string
   description = "The name of the existing S3 bucket"
 }
+variable "argocd_node_port" {
+  type        = number
+  default     = 30007
+  description = "The NodePort to expose ArgoCD server on"
+}

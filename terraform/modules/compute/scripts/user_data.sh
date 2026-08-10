@@ -58,3 +58,7 @@ EOT
 # Reload daemon configurations and enable Promtail
 systemctl daemon-reload
 systemctl enable --now promtail
+
+#install argocd
+chmod +x /usr/local/bin/install-argocd.sh
+nohup /usr/local/bin/install-argocd.sh > /var/log/install-argocd.log 2>&1 &
