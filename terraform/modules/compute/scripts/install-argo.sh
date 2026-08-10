@@ -12,7 +12,7 @@ sudo kubectl create namespace argocd --dry-run=client -o yaml | sudo kubectl app
 sudo kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 
-NODE_PORT=${node_port:-30007}
+NODE_PORT=${1:-30007}
 
 # שינוי ה-Service ל-NodePort והגדרת הפורט הגלוי
 kubectl patch svc argocd-server -n argocd --type='json' -p="[

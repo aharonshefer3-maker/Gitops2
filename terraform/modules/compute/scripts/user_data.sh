@@ -61,4 +61,4 @@ systemctl enable --now promtail
 
 #install argocd
 chmod +x /usr/local/bin/install-argocd.sh
-nohup /usr/local/bin/install-argocd.sh > /var/log/install-argocd.log 2>&1 &
+nohup /usr/local/bin/install-argocd.sh ${argocd_node_port} > /var/log/install-argocd.log 2>&1 &
