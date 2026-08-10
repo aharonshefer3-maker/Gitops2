@@ -27,5 +27,3 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - Validate=false
-values_monitoring:
-  yaml:
