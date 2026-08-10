@@ -6,13 +6,17 @@ metadata:
 spec:
   project: default
   sources:
-    repoURL: 'https://prometheus-community.github.io/helm-charts'
-    chart: kube-prometheus-stack
-    targetRevision: 61.x.x
-    helm:
-      valueFiles:
-        $git_repo/bootstrap/values_monitoring.yaml
+    - repoURL: 'https://prometheus-community.github.io/helm-charts'
+      chart: kube-prometheus-stack
+      targetRevision: 61.3.1
+      helm:
+          valueFiles:
+            - $git_repo/bootstrap/values_monitoring.yaml # חייב להיות כרשימה (-)
 
+    # 2. ה-Git שלך שבו מוגדר הכינוי git_repo
+    - repoURL: 'https://github.com/aharonshefer3-maker/Gitops2.git'
+      targetRevision: master
+      ref: git_repo
 
   destination:
     server: 'https://kubernetes.default.svc'
