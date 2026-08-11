@@ -59,7 +59,8 @@ resource "aws_security_group" "k3s_sg" {
   # 4. NodePorts (External Access)
   ingress {
     from_port   = 30007
-    to_port     = 30007
+    to_port     = ssh -i "C:\Users\USER\Downloads\MY_KEY.pem" ubuntu@<PUBLIC_IP>
+
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "ArgoCD UI"
