@@ -1,25 +1,30 @@
 #!/bin/bash
-# Enable immediate exit on script failure
 set -e
 
-# Update package repositories and install system utilities
+# לוג שירכז את כל פלט ההתקנה
+exec > >(tee -a /var/log/user-data.log) 2>&1
+
+echo "=== 1. Updating packages & tools ==="
 apt-get update -y
 apt-get install -y unzip curl wget
 
-# --- Install K3s Service ---
+echo "=== 2. Installing K3s ==="
 curl -sfL https://get.k3s.io | sh -s -
 systemctl daemon-reload
 systemctl enable --now k3s
 
-# --- Download & Configure Promtail Agent ---
+# הגדרת נתיב הקונפיגורציה ל-root כדי שכל פקודת kubectl תכיר את K3s
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+mkdir -p /root/.kube
+cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
+
+echo "=== 3. Installing Promtail ==="
 PROM_VERSION="2.9.4"
-# Escaped $ for Terraform templatefile processing
 wget -q "https://github.com/grafana/loki/releases/download/v$${PROM_VERSION}/promtail-linux-amd64.zip"
 unzip -o promtail-linux-amd64.zip
 mv promtail-linux-amd64 /usr/local/bin/promtail
 chmod +x /usr/local/bin/promtail
 
-# Create Promtail configuration directory and file
 mkdir -p /etc/promtail
 cat <<EOT > /etc/promtail/config.yaml
 server:
@@ -39,7 +44,6 @@ scrape_configs:
       __path__: /var/log/*.log
 EOT
 
-# Create systemd service unit for Promtail
 cat <<EOT > /etc/systemd/system/promtail.service
 [Unit]
 Description=Promtail Log Collector Service
@@ -55,64 +59,39 @@ Restart=always
 WantedBy=multi-user.target
 EOT
 
-# Reload daemon configurations and enable Promtail
 systemctl daemon-reload
 systemctl enable --now promtail
 
-# --- Create install-argocd.sh Script ---
-cat << 'ARGOCD_EOF' > /usr/local/bin/install-argocd.sh
-#!/bin/bash
-set -e
+echo "=== 4. Waiting for K3s API to be ready ==="
+until kubectl get nodes &>/dev/null; do
+    echo "Waiting for K3s cluster..."
+    sleep 3
+done
 
-# הגדרת נתיב ה-Kubeconfig למשתמש sudo (מונע שגיאות הרשאה למול ה-Cluster)
-export KUBECONFIG=${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}
+echo "=== 5. Installing ArgoCD ==="
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-echo "=== Starting ArgoCD & Root App Provisioning ==="
+echo "=== 6. Configuring ArgoCD Service & HTTP mode ==="
+# המתנה עד שה-Service נוצר בפועל ב-Kubernetes API
+until kubectl get svc argocd-server -n argocd &>/dev/null; do
+    echo "Waiting for argocd-server service to be created..."
+    sleep 2
+done
 
-# 1. התקנת ArgoCD
-echo "Installing ArgoCD..."
-sudo kubectl create namespace argocd --dry-run=client -o yaml | sudo kubectl apply -f -
-sudo kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# עדכון ה-NodePort מהמשתנה של Terraform
+kubectl patch svc argocd-server -n argocd -p "{\"spec\": {\"type\": \"NodePort\", \"ports\": [{\"name\": \"http\", \"port\": 80, \"targetPort\": 8080, \"nodePort\": ${argocd_node_port}}]}}"
 
-NODE_PORT=${1:-30007}
+# ביטול TLS כדי לעבוד ב-HTTP נקי
+#kubectl env deployment/argocd-server -n argocd ARGOCD_SERVER_INSECURE=true
+kubectl set env deployment/argocd-server -n argocd ARGOCD_SERVER_INSECURE=true
+echo "=== 7. Waiting for ArgoCD Rollout ==="
+kubectl rollout status deployment/argocd-server -n argocd --timeout=300s
 
-# שינוי ה-Service ל-NodePort והגדרת הפורט הגלוי
-kubectl patch svc argocd-server -n argocd --type='json' -p="[
-  {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"NodePort\"},
-  {\"op\": \"replace\", \"path\": \"/spec/ports/0/nodePort\", \"value\": $NODE_PORT}
-]"
+echo "=== 8. Applying Root Application ==="
+kubectl apply --validate=ignore -f https://raw.githubusercontent.com/aharonshefer3-maker/Gitops2/master/bootstrap/root-app.yaml
 
-# המתנה לעליית השרת
-echo "Waiting for ArgoCD server deployment..."
-sudo kubectl rollout status deployment/argocd-server -n argocd --timeout=300s
-
-# 3. שפעול Root Application
-echo "Applying Root Application..."
-sudo kubectl apply --validate=ignore -f https://raw.githubusercontent.com/aharonshefer3-maker/Gitops2/master/bootstrap/root-app.yaml
-
-# 4. הפעלת Port-Forward ברקע לפורט 30007
-echo "Setting up background port-forward on port 30007..."
-sudo pkill -f "port-forward.*30007" || true
-sudo nohup kubectl port-forward svc/argocd-server -n argocd 30007:80 --address 0.0.0.0 > /var/log/argocd-port-forward.log 2>&1 &
-
-# שליפת הסיסמה הראשונית
-PASS_ENCODED=$(sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" 2>/dev/null || true)
-
-echo ""
 echo "=================================================="
-echo "🚀 ArgoCD Provisioning Complete!"
-echo "URL:      http://localhost:30007"
-echo "Username: admin"
-
-if [ -n "$PASS_ENCODED" ]; then
-    INITIAL_PASS=$(echo "$PASS_ENCODED" | base64 --decode)
-    echo "Password: $INITIAL_PASS"
-else
-    echo "Password: (Secret not found - check if already deleted)"
-fi
-echo "==="
-ARGOCD_EOF
-
-# --- Make script executable & run it ---
-chmod +x /usr/local/bin/install-argocd.sh
-/usr/local/bin/install-argocd.sh
+echo "🚀 ALL SERVICES PROVISIONED SUCCESSFULLY!"
+echo "ArgoCD URL: http://<PUBLIC_IP>:${argocd_node_port}"
+echo "=================================================="

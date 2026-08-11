@@ -60,7 +60,6 @@ resource "aws_security_group" "k3s_sg" {
   ingress {
     from_port   = 30007
     to_port     = 30007
-
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "ArgoCD UI"
