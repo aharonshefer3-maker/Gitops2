@@ -3,5 +3,3 @@ image:
   repository: bitnami/redis
   tag: "latest"    # במקום latest
 
-auth:
-  enabled: false
