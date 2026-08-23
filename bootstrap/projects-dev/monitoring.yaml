@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ultra-slim-monitoring
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: 'https://prometheus-community.github.io/helm-charts'
+      chart: kube-prometheus-stack
+      targetRevision: 61.3.1
+      helm:
+          valueFiles:
+            - $git_repo/bootstrap/values_monitoring.yaml # חייב להיות כרשימה (-)
+
+    # 2. ה-Git שלך שבו מוגדר הכינוי git_repo
+    - repoURL: 'https://github.com/aharonshefer3-maker/Gitops2.git'
+      targetRevision: for-redis
+      ref: git_repo
+
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Validate=false

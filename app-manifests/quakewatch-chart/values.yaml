@@ -108,6 +108,8 @@ prometheus:
 redis:
   host: "main-master"
   port: 6379            # הפורט של ה-Redis
+  seedFilePath: "/app/seed_data.json"
+
   metrics:
     enabled: false
 kube-prometheus-stack:
