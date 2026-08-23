@@ -1,5 +1,7 @@
 image:
   registry: docker.io
   repository: bitnami/redis
-  # כאן זה תקין לרשום latest כי זה ה-Tag של Docker
-  tag: latest
+  tag: "7.2.4"    # במקום latest
+
+auth:
+  enabled: false
