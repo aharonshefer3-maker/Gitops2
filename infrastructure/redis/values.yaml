@@ -3,3 +3,6 @@ image:
   repository: bitnami/redis
   # כאן זה תקין לרשום latest כי זה ה-Tag של Docker
   tag: latest
+
+redis:
+  port: 6379

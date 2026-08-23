@@ -7,6 +7,10 @@ image:
   repository: aharonshefer03/quakewatch
   tag: "v0.3"
   pullPolicy: Always
+# --- Redis Connection Configuration ---
+
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -102,6 +106,8 @@ prometheus:
     enabled: false
 # משביתים את רדיס מטריקס אם קיים
 redis:
+  host: "main-master"
+  port: 6379            # הפורט של ה-Redis
   metrics:
     enabled: false
 kube-prometheus-stack:
