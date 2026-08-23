@@ -15,7 +15,7 @@ spec:
 
     # 2. ה-Git שלך שבו מוגדר הכינוי git_repo
     - repoURL: 'https://github.com/aharonshefer3-maker/Gitops2.git'
-      targetRevision: for-redis
+      targetRevision: for-redis-
       ref: git_repo
 
   destination:

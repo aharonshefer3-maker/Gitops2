@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/aharonshefer3-maker/gitops2'
-    targetRevision: for-redis
+    targetRevision: for-redis-
     path: app-manifests/quakewatch-chart  # התיקייה שבה יושב ה-Helm Chart שלך
     helm:
       valueFiles:

@@ -8,7 +8,7 @@ spec:
   source:
     # --- שנה לכתובת ה-GIT שלך ---
     repoURL: 'https://github.com/aharonshefer3-maker/gitops2'
-    targetRevision: for-redis
+    targetRevision: for-redis-
     path: bootstrap/projects # מצביע לתיקייה עם ההגדרות של השאר
   destination:
     server: https://kubernetes.default.svc

@@ -13,7 +13,7 @@ spec:
       valueFiles:
         # כאן ארגו מושך את הקונפיגורציה שלך מהתיקייה שצילמת
 #        - 'https://github.com/ronaelshef3/GITops1/infrastructure//values.yaml'
-        - "https://raw.githubusercontent.com/aharonshefer3-maker/GitOps2/for-redis/infrastructure/redis/values.yaml"
+        - "https://raw.githubusercontent.com/aharonshefer3-maker/GitOps2/for-redis-/infrastructure/redis/values.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: database # או איפה שאתה רוצה שה-Redis ירוץ
