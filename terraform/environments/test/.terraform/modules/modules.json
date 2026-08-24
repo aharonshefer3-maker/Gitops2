@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"compute","Source":"../../modules/compute","Dir":"../../modules/compute"},{"Key":"network","Source":"../../modules/vpc","Dir":"../../modules/vpc"},{"Key":"security","Source":"../../modules/security","Dir":"../../modules/security"}]}
