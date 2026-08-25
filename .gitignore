@@ -4,10 +4,3 @@
 *.tfstate
 *.tfstate.*
 *.log
-/f1.txt
-ff.txt
-
-/terraform/environments/test/.terraform/providers/registry.terraform.io/hashicorp/aws/5.100.0/windows_amd64/LICENSE.txt
-/log.txt
-/app-manifests/quakewatch-chart/charts_old/kube-prometheus-stack-50.0.0.tgz.del
-/terraform/environments/test/f.txt
