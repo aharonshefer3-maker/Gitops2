@@ -8,4 +8,4 @@ image:
 #    existingSecret: "redis-custom-password"
 #    existingSecretPasswordKey: "redis-password"
   sentinel:
-      enabled: false
+    enabled: false
