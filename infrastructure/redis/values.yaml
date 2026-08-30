@@ -5,7 +5,7 @@ image:
   tag: latest
   auth:
     enabled: false
-#    existingSecret: "redis-custom-password"
-#    existingSecretPasswordKey: "redis-password"
+    existingSecret: ""
+    existingSecretPasswordKey: ""
   sentinel:
     enabled: false
