@@ -4,9 +4,9 @@ metadata:
   name: {{ include "quakewatch-chart.fullname" . }}
   labels:
     {{- include "quakewatch-chart.labels" . | nindent 4 }}
-  annotations: # <--- זה המקום הנכון!
+  annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "5000"
+    prometheus.io/port: "{{ .Values.service.port }}"
     prometheus.io/path: "/metrics"
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -20,7 +20,6 @@ spec:
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
-
       {{- end }}
       labels:
         {{- include "quakewatch-chart.labels" . | nindent 8 }}
@@ -39,19 +38,19 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
-
           {{- with .Values.command }}
           command:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-
+          env:
+            - name: REDIS_HOST
+              value: "{{ .Values.redis.host }}"
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: SEED_FILE_PATH
+              value: "{{ .Values.redis.seedFilePath }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

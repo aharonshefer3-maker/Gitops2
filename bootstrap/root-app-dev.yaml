@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # --- שנה לכתובת ה-GIT שלך ---
+    repoURL: 'https://github.com/aharonshefer3-maker/gitops2'
+    targetRevision: for-redis-
+    path: bootstrap/projects-dev # מצביע לתיקייה עם ההגדרות של השאר
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

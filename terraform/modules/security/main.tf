@@ -49,8 +49,8 @@ resource "aws_security_group" "k3s_sg" {
   }
 
   ingress {
-    from_port   = 6379
-    to_port     = 6379
+    from_port   = var.redis_port
+    to_port     = var.redis_port
     protocol    = "tcp"
     self        = true
     description = "Redis internal port"

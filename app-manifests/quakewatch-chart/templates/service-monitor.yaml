@@ -17,5 +17,5 @@ spec:
       {{- include "quakewatch-chart.selectorLabels" . | nindent 6 }}
   endpoints:
   - port: http # שם הפורט כפי שהוא מוגדר ב-Service שלך
-    path: /helm uninstall monitoring-stack -n monitoring # הנתיב שבו האפליקציה חושפת מטריקות
+    path: /metrics # הנתיב שבו האפליקציה חושפת מטריקות
     interval: 15s # כל כמה זמן לגרד מטריקות

@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quakewatch-service
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/aharonshefer3-maker/gitops2'
+    targetRevision: for-redis-
+    path: app-manifests/quakewatch-chart  # התיקייה שבה יושב ה-Helm Chart שלך
+    helm:
+      valueFiles:
+        - values.yaml # שימוש בערכים ששלחת לי קודם
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default # האפליקציה תרוץ ב-Namespace הרגיל
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # עוזר לעקוף שגיאות Schema

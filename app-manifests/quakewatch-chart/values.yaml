@@ -7,6 +7,10 @@ image:
   repository: aharonshefer03/quakewatch
   tag: "v0.3"
   pullPolicy: Always
+# --- Redis Connection Configuration ---
+
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -102,6 +106,14 @@ prometheus:
     enabled: false
 # משביתים את רדיס מטריקס אם קיים
 redis:
+  host: "redis-master.database.svc.cluster.local"
+  port: 6379
+  # הפורט של ה-Redis
+  seedFilePath: "/app/seed_data.json"
+  auth:
+    enabled: true
+    existingSecret: "qw-redis-secret"     # שם הסוד שיצרנו בנמפסייס של ה-QW
+    existingSecretPasswordKey: "qw-redis-secret" # המפתח בתוך הסוד
   metrics:
     enabled: false
 kube-prometheus-stack:
