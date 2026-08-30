@@ -1,11 +1,16 @@
+# 1. הגדרת האימג' בנפרד
 image:
   registry: docker.io
   repository: bitnami/redis
-  # כאן זה תקין לרשום latest כי זה ה-Tag של Docker
   tag: latest
-  auth:
-    enabled: false
-    existingSecret: ""
-    existingSecretPasswordKey: ""
-  sentinel:
-    enabled: false
+
+# 2. הגדרות האבטחה ברמה הראשית (בחוץ, מחוץ לבלוק של ה-image!)
+auth:
+  enabled: false
+  existingSecret: ""
+  existingSecretPasswordKey: ""
+
+sentinel:
+  enabled: false
+
+architecture: standalone
