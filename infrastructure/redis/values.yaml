@@ -4,6 +4,6 @@ image:
   # כאן זה תקין לרשום latest כי זה ה-Tag של Docker
   tag: latest
   auth:
-    enabled: true
-    existingSecret: "redis-custom-password"
-    existingSecretPasswordKey: "redis-password"
+    enabled: false
+#    existingSecret: "redis-custom-password"
+#    existingSecretPasswordKey: "redis-password"
