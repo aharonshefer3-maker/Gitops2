@@ -5,11 +5,9 @@ command:
 replicaCount: 1
 image:
   repository: aharonshefer03/quakewatch
-  tag: "v0.3"
+  tag: "v0.4"
   pullPolicy: Always
 # --- Redis Connection Configuration ---
-
-
 
 imagePullSecrets: []
 nameOverride: ""
@@ -112,7 +110,7 @@ redis:
   seedFilePath: "/app/seed_data.json"
   auth:
     enabled: true
-    existingSecret: "qw-redis-secret"     # שם הסוד שיצרנו בנמפסייס של ה-QW
+    existingSecret: "qw-redis-secret" # שם הסוד שיצרנו בנמפסייס של ה-QW
     existingSecretPasswordKey: "qw-redis-secret" # המפתח בתוך הסוד
   metrics:
     enabled: false
