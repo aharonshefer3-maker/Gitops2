@@ -7,6 +7,5 @@ image:
 # 2. הגדרות האבטחה ברמה הראשית (בחוץ, מחוץ לבלוק של ה-image!)
 auth:
   enabled: true
-  existingSecret: ""
-  existingSecretPasswordKey: ""
+
 
