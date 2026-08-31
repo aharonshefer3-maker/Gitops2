@@ -104,10 +104,10 @@ prometheus:
     enabled: false
 # משביתים את רדיס מטריקס אם קיים
 redis:
-  host: "redis-master.database.svc.cluster.local"
+  host: "redis-master.default.svc.cluster.local"
   port: 6379
   # הפורט של ה-Redis
-  seedFilePath: "/seed_data.json"
+  seedFilePath: "/config.json"
   auth:
     enabled: true
      # שם הסוד שיצרנו בנמפסייס של ה-QW
