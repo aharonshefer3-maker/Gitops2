@@ -10,7 +10,3 @@ auth:
   existingSecret: ""
   existingSecretPasswordKey: ""
 
-sentinel:
-  enabled: false
-
-architecture: standalone
