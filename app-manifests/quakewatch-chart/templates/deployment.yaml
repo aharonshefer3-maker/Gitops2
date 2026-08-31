@@ -49,6 +49,13 @@ spec:
               value: "{{ .Values.redis.host }}"
             - name: REDIS_PORT
               value: {{ .Values.redis.port | quote }}
+
+            - name:  REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis          # הסוד שהעתקנו או שיצרנו
+                  key: redis-password  # המפתח של הסיסמה
+
             - name: SEED_FILE_PATH
               value: "{{ .Values.redis.seedFilePath }}"
           ports:

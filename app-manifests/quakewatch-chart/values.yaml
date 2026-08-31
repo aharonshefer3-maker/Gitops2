@@ -110,8 +110,7 @@ redis:
   seedFilePath: "/app/seed_data.json"
   auth:
     enabled: true
-    existingSecret: "qw-redis-secret" # שם הסוד שיצרנו בנמפסייס של ה-QW
-    existingSecretPasswordKey: "qw-redis-secret" # המפתח בתוך הסוד
+     # שם הסוד שיצרנו בנמפסייס של ה-QW
   metrics:
     enabled: false
 kube-prometheus-stack:

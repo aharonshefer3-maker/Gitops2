@@ -16,7 +16,7 @@ spec:
         - "https://raw.githubusercontent.com/aharonshefer3-maker/GitOps2/master/infrastructure/redis/values.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: database # או איפה שאתה רוצה שה-Redis ירוץ
+    namespace: default # או איפה שאתה רוצה שה-Redis ירוץ
   syncPolicy:
     automated:
       prune: true
